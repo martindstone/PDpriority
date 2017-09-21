@@ -7,6 +7,18 @@ function getParameterByName(name) {
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+function secondsToHHMMSS(seconds) {
+	var hours = Math.floor(seconds / 60 / 60);
+	var minutes = Math.floor((seconds % 3600) / 60);
+	var seconds = seconds % 60;
+
+	var HH = ('0' + hours).slice(-2);
+	var MM = ('0' + minutes).slice(-2);
+	var SS = ('0' + seconds).slice(-2);
+
+	return `${HH}:${MM}:${SS}`;
+}
+
 function PDRequest(token, endpoint, method, options) {
 
 	if ( !token ) {
@@ -98,7 +110,8 @@ function fetchIncidents(since, until, callback, progressCallback) {
 	var params = {
 		since: since.toISOString(),
 		until: until.toISOString(),
-		'statuses[]': 'resolved'
+		'statuses[]': 'resolved',
+		'include[]': 'first_trigger_log_entries'
 	}
 	fetch('incidents', params, callback, progressCallback);
 }
@@ -194,6 +207,10 @@ function buildReport(since, until, reuseFetchedData) {
 					incident.title,
 					incident.priority.name,
 					moment(incident.created_at).format('l LTS [GMT]ZZ'),
+					incident.first_trigger_log_entry.agent.summary,
+					moment(incident.last_status_change_at).format('l LTS [GMT]ZZ'),
+					incident.last_status_change_by.summary,
+					secondsToHHMMSS(moment.duration(moment(incident.last_status_change_at).diff(moment(incident.created_at))).asSeconds()),
 					incident.service.summary,
 				]);
 			}
@@ -204,7 +221,11 @@ function buildReport(since, until, reuseFetchedData) {
 				{ title: "Title" },
 				{ title: "Priority" },
 				{ title: "Created at" },
-				{ title: "Service Name" },
+				{ title: "Created by" },
+				{ title: "Resolved at" },
+				{ title: "Resolved by" },
+				{ title: "Duration" },
+				{ title: "Service Name" }
 			];
 		$('#details-table').DataTable({
 			data: tableData,
