@@ -143,7 +143,7 @@ function buildReport(since, until, reuseFetchedData) {
 						data.priorities.forEach(function(priority) {
 							$('#priority-checkboxes-group').append($('<button/>', { class: "priority-button btn btn-primary active", value: priority.name, text: priority.name }));
 						});
-						$('#priority-checkboxes-group').append($('<button/>', { class: "priority-button btn btn-primary active", value: "none", text: "none" }));
+						$('#priority-checkboxes-group').append($('<button/>', { class: "priority-button btn", value: "~none~", text: "none" }));
 	
 						$('.priority-button').click(function() {
 							$(this).toggleClass('btn-primary');
@@ -185,14 +185,14 @@ function buildReport(since, until, reuseFetchedData) {
 		
 		incidents.forEach(function(incident) {
 			if ( ! incident.priority ) {
-				incident.priority = { name: 'none' };
+				incident.priority = { name: '~none~' };
 			}
 
 			if ( selected_priorities.indexOf(incident.priority.name) > -1 ) {
 				tableData.push([
 					'<a href="' + incident.html_url + '" target="blank">' + incident.incident_number + '</a>',
 					incident.title,
-					incident.priority ? incident.priority.name : "none",
+					incident.priority.name,
 					moment(incident.created_at).format('l LTS [GMT]ZZ'),
 					incident.service.summary,
 				]);
@@ -213,7 +213,7 @@ function buildReport(since, until, reuseFetchedData) {
 			buttons: [
 				'copy', 'csv', 'pdf', 'print'
 			],
-			order: [[2, 'desc']],
+			order: [[2, 'asc']],
 			pageLength: 50
 		});
 
