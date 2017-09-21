@@ -136,6 +136,29 @@ function buildReport(since, until, reuseFetchedData) {
 			if ( reuseFetchedData ) {
 				callback(null, 'yay');
 			} else {
+				PDRequest(getParameterByName('token'), 'priorities', 'GET', {
+					success: function(data) {
+						$('#priority-checkboxes-div').html('Show priorities: <div class="btn-group" id="priority-checkboxes-group"></div>');
+	
+						data.priorities.forEach(function(priority) {
+							$('#priority-checkboxes-group').append($('<button/>', { class: "priority-button btn btn-primary active", value: priority.name, text: priority.name }));
+						});
+						$('#priority-checkboxes-group').append($('<button/>', { class: "priority-button btn btn-primary active", value: "none", text: "none" }));
+	
+						$('.priority-button').click(function() {
+							$(this).toggleClass('btn-primary');
+							$(this).toggleClass('active');
+							buildReport(since, until, true);
+						});
+						callback(null, 'yay');
+					}
+				});
+			}
+		},
+		function(callback) {
+			if ( reuseFetchedData ) {
+				callback(null, 'yay');
+			} else {
 				fetchReportData(since, until, function(data) {
 					incidents = data;
 					callback(null, 'yay');
@@ -156,15 +179,24 @@ function buildReport(since, until, reuseFetchedData) {
 		}));
 
 		var tableData = [];
-
+		
+		var selected_priorities = $(':button.active').map(function() { return this.value; }).get();
+		console.log(selected_priorities);
+		
 		incidents.forEach(function(incident) {
-			tableData.push([
-				'<a href="' + incident.html_url + '" target="blank">' + incident.incident_number + '</a>',
-				incident.title,
-				incident.priority ? incident.priority.name : "none",
-				moment(incident.created_at).format('l LTS [GMT]ZZ'),
-				incident.service.summary,
-			]);
+			if ( ! incident.priority ) {
+				incident.priority = { name: 'none' };
+			}
+
+			if ( selected_priorities.indexOf(incident.priority.name) > -1 ) {
+				tableData.push([
+					'<a href="' + incident.html_url + '" target="blank">' + incident.incident_number + '</a>',
+					incident.title,
+					incident.priority ? incident.priority.name : "none",
+					moment(incident.created_at).format('l LTS [GMT]ZZ'),
+					incident.service.summary,
+				]);
+			}
 		});
 
 		var columnTitles = [
