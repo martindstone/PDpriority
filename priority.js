@@ -110,7 +110,6 @@ function fetchIncidents(since, until, callback, progressCallback) {
 	var params = {
 		since: since.toISOString(),
 		until: until.toISOString(),
-		'statuses[]': 'resolved',
 		'include[]': 'first_trigger_log_entries'
 	}
 	fetch('incidents', params, callback, progressCallback);
@@ -208,9 +207,9 @@ function buildReport(since, until, reuseFetchedData) {
 					incident.priority.name,
 					moment(incident.created_at).format('l LTS [GMT]ZZ'),
 					'<a href="' + incident.first_trigger_log_entry.agent.html_url + '" target="blank">' + incident.first_trigger_log_entry.agent.summary + '</a>',
-					moment(incident.last_status_change_at).format('l LTS [GMT]ZZ'),
-					'<a href="' + incident.last_status_change_by.html_url + '" target="blank">' + incident.last_status_change_by.summary + '</a>',
-					secondsToHHMMSS(moment.duration(moment(incident.last_status_change_at).diff(moment(incident.created_at))).asSeconds()),
+					incident.status == 'resolved' ? moment(incident.last_status_change_at).format('l LTS [GMT]ZZ') : '(in progress)',
+					incident.status == 'resolved' ? '<a href="' + incident.last_status_change_by.html_url + '" target="blank">' + incident.last_status_change_by.summary + '</a>' : '(in progress)',
+					incident.status == 'resolved' ? secondsToHHMMSS(moment.duration(moment(incident.last_status_change_at).diff(moment(incident.created_at))).asSeconds()) : '(in progress)',
 					'<a href="' + incident.service.html_url + '" target="blank">' + incident.service.summary + '</a>',
 				]);
 			}
