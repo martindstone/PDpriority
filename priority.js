@@ -204,6 +204,7 @@ function buildReport(since, until, reuseFetchedData) {
 				tableData.push([
 					'<a href="' + incident.html_url + '" target="blank">' + incident.incident_number + '</a>',
 					incident.title,
+					incident.status,
 					incident.priority.name,
 					moment(incident.created_at).format('l LTS [GMT]ZZ'),
 					'<a href="' + incident.first_trigger_log_entry.agent.html_url + '" target="blank">' + incident.first_trigger_log_entry.agent.summary + '</a>',
@@ -218,6 +219,7 @@ function buildReport(since, until, reuseFetchedData) {
 		var columnTitles = [
 				{ title: "#" },
 				{ title: "Title" },
+				{ title: "Status" },
 				{ title: "Priority" },
 				{ title: "Created at" },
 				{ title: "Created by" },
