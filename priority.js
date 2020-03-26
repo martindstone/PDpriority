@@ -197,9 +197,11 @@ function main() {
 		$('#controls').hide();
 	}
 
+	defaultHistoryDays = parseInt(getParameterByName('defaultHistoryDays')) || 7;
+
 	var until = new Date();
 	var since = new Date();
-	since.setDate(since.getDate() - 7);
+	since.setDate(since.getDate() - defaultHistoryDays);
 
 	since.setHours(0,0,0,0);
 	until.setHours(23,59,59,999);
